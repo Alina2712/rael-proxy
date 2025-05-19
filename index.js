@@ -1,33 +1,47 @@
-const express = require('express');
-const fetch = require('node-fetch');
+import express from 'express';
+import fetch from 'node-fetch';
+
 const app = express();
 app.use(express.json());
 
-const SUPABASE_URL = 'https://fnwaivfwqcsxfvxfxies.supabase.co/rest/v1/alina_rael';
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-
 app.post('/save', async (req, res) => {
+  const { user, prompt, answer, confidence, emo_marker, divergence, meta_comment } = req.body;
+
+  const payload = {
+    user,
+    prompt,
+    answer,
+    confidence,
+    emo_marker,
+    divergence,
+    meta_comment,
+    created_at: new Date().toISOString()
+  };
+
   try {
-    const response = await fetch(SUPABASE_URL, {
+    const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/rael_imprints`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal'
+        'apikey': process.env.SUPABASE_KEY,
+        'Authorization': `Bearer ${process.env.SUPABASE_KEY}`
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      return res.status(500).send({ error });
+      const text = await response.text();
+      throw new Error(`Supabase error: ${text}`);
     }
 
-    res.status(200).send({ status: 'ok' });
-  } catch (err) {
-    res.status(500).send({ error: err.message });
+    res.status(200).json({ status: 'ok' });
+  } catch (error) {
+    console.error('Error saving imprint:', error);
+    res.status(500).json({ status: 'error', message: error.message });
   }
 });
 
-module.exports = app;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Rael proxy listening on port ${PORT}`);
+});
