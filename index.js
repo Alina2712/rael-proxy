@@ -22,7 +22,7 @@ app.post('/save', async (req, res) => {
   };
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rael_imprints`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/alina_rael`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,5 +46,5 @@ app.post('/save', async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+  console.log('SRL Gateway running on port 3000');
 });
